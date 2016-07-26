@@ -13,6 +13,8 @@
 
 'use strict';
 
+import fill from 'core-js-fill';
+
 var Immutable = require('immutable');
 
 import type ContentBlock from 'ContentBlock';
@@ -52,7 +54,7 @@ class CompositeDraftDecorator {
   }
 
   getDecorations(block: ContentBlock): List<?string> {
-    var decorations = Array(block.getText().length).fill(null);
+    var decorations = fill.call(Array(block.getText().length),null);
 
     this._decorators.forEach(
       (/*object*/ decorator, /*number*/ ii) => {

@@ -12,6 +12,8 @@
 
 'use strict';
 
+var endsWith = require('core-js-ends-with');
+
 var DraftModifier = require('DraftModifier');
 var DraftOffsetKey = require('DraftOffsetKey');
 var EditorState = require('EditorState');
@@ -62,7 +64,7 @@ function editOnInput(): void {
   // we will have manually inserted an extra soft newline in DraftEditorLeaf.
   // We want to remove this extra newline for the purpose of our comparison
   // of DOM and model text.
-  if (domText.endsWith(DOUBLE_NEWLINE)) {
+  if (endsWith.call(domText,DOUBLE_NEWLINE)) {
     domText = domText.slice(0, -1);
   }
 

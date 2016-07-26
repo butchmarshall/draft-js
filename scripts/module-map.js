@@ -16,6 +16,9 @@ module.exports = Object.assign(
 
     ReactTestUtils: 'react/lib/ReactTestUtils',
     reactComponentExpect: 'react/lib/reactComponentExpect',
+    'core-js-library': 'core-js/library',
+    'core-js-ends-with': 'core-js/library/fn/string/virtual/ends-with',
+    'core-js-fill': 'core-js/library/fn/array/virtual/fill',
   },
   require('fbjs/module-map'),
   require('fbjs-scripts/third-party-module-map')

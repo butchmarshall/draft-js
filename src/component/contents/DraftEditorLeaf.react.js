@@ -13,6 +13,8 @@
 
 'use strict';
 
+var endsWith = require('core-js-ends-with');
+
 var DraftEditorTextNode = require('DraftEditorTextNode.react');
 var React = require('React');
 var ReactDOM = require('ReactDOM');
@@ -125,7 +127,7 @@ class DraftEditorLeaf extends React.Component {
     // an extra line feed character. Browsers collapse trailing newline
     // characters, which leaves the cursor in the wrong place after a
     // shift+enter. The extra character repairs this.
-    if (text.endsWith('\n') && this.props.isLast) {
+    if (endsWith.call(text,'\n') && this.props.isLast) {
       text += '\n';
     }
 

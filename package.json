@@ -30,7 +30,8 @@
     "test-ci": "NODE_ENV=test npm run lint && npm run flow && npm run test"
   },
   "dependencies": {
-    "fbjs": "^0.8.3",
+    "core-js": "^2.4.1",
+    "fbjs": "git://github.com/butchmarshall/fbjs.git#4db4767cfc5cc3b8bcfcd50f29d38865d720c3c1",
     "immutable": "~3.7.4"
   },
   "peerDependencies": {

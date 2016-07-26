@@ -13,6 +13,8 @@
 
 'use strict';
 
+var core = require('core-js-library');
+
 var UserAgent = require('UserAgent');
 
 var invariant = require('invariant');
@@ -42,7 +44,7 @@ function getRangeClientRectsChrome(range: Range): Array<ClientRect> {
     } else {
       tempRange.setStart(tempRange.endContainer, 0);
     }
-    var rects = Array.from(tempRange.getClientRects());
+    var rects = core.Array.from(tempRange.getClientRects());
     clientRects.push(rects);
     if (atCommonAncestor) {
       clientRects.reverse();
@@ -64,7 +66,7 @@ function getRangeClientRectsChrome(range: Range): Array<ClientRect> {
 var getRangeClientRects = isChrome ?
   getRangeClientRectsChrome :
   function(range: Range): Array<ClientRect> {
-    return Array.from(range.getClientRects());
+    return core.Array.from(range.getClientRects());
   };
 
 module.exports = getRangeClientRects;

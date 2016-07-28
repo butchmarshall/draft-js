@@ -9544,6 +9544,7 @@ var Draft =
 	var resolved = false;
 	var stillComposing = false;
 	var textInputData = '';
+	var formerTextInputData = '';
 
 	var DraftEditorCompositionHandler = {
 	  onBeforeInput: function onBeforeInput(e) {
@@ -9554,7 +9555,8 @@ var Draft =
 	   * A `compositionstart` event has fired while we're still in composition
 	   * mode. Continue the current composition session to prevent a re-render.
 	   */
-	  onCompositionStart: function onCompositionStart() {
+	  onCompositionStart: function onCompositionStart(e) {
+	    formerTextInputData = e.data;
 	    stillComposing = true;
 	  },
 
@@ -9631,6 +9633,9 @@ var Draft =
 	    var composedChars = textInputData;
 	    textInputData = '';
 
+	    var formerComposedChars = formerTextInputData;
+	    formerTextInputData = '';
+
 	    var editorState = EditorState.set(this.props.editorState, {
 	      inCompositionMode: false
 	    });
@@ -9647,10 +9652,22 @@ var Draft =
 	    this.exitCurrentMode();
 	    this.removeRenderGuard();
 
+	    var contentState = editorState.getCurrentContent();
+	    var selection = editorState.getSelection();
+	    if (formerComposedChars && selection.isCollapsed()) {
+	      var anchorOffset = selection.getAnchorOffset() - formerComposedChars.length;
+	      if (anchorOffset < 0) {
+	        anchorOffset = 0;
+	      }
+	      var toRemoveSel = selection.merge({ anchorOffset: anchorOffset });
+	      contentState = DraftModifier.removeRange(editorState.getCurrentContent(), toRemoveSel, 'backward');
+	      selection = contentState.getSelectionAfter();
+	    }
+
 	    if (composedChars) {
 	      // If characters have been composed, re-rendering with the update
 	      // is sufficient to reset the editor.
-	      var contentState = DraftModifier.replaceText(editorState.getCurrentContent(), editorState.getSelection(), composedChars, currentStyle, entityKey);
+	      contentState = DraftModifier.replaceText(contentState, selection, composedChars, currentStyle, entityKey);
 	      this.update(EditorState.push(editorState, contentState, 'insert-characters'));
 	      return;
 	    }
@@ -11632,9 +11649,10 @@ var Draft =
 	 * The user has begun using an IME input system. Switching to `composite` mode
 	 * allows handling composition input and disables other edit behavior.
 	 */
-	function editOnCompositionStart() {
+	function editOnCompositionStart(e) {
 	  this.setRenderGuard();
 	  this.setMode('composite');
+	  this._onCompositionStart(e);
 	  this.update(EditorState.set(this.props.editorState, { inCompositionMode: true }));
 	}
 
@@ -11889,7 +11907,7 @@ var Draft =
 	var nullthrows = __webpack_require__(23);
 
 	var isGecko = UserAgent.isEngine('Gecko');
-
+	var isAndroid = UserAgent.isPlatform('Android');
 	var DOUBLE_NEWLINE = '\n\n';
 
 	/**
@@ -11910,7 +11928,7 @@ var Draft =
 	  var anchorNode = domSelection.anchorNode;
 	  var isCollapsed = domSelection.isCollapsed;
 
-	  if (anchorNode.nodeType !== Node.TEXT_NODE) {
+	  if (anchorNode.nodeType !== Node.TEXT_NODE && anchorNode.nodeType !== Node.ELEMENT_NODE) {
 	    return;
 	  }
 
@@ -11972,7 +11990,7 @@ var Draft =
 
 	  var anchorOffset, focusOffset, startOffset, endOffset;
 
-	  if (isGecko) {
+	  if (isAndroid || isGecko) {
 	    // Firefox selection does not change while the context menu is open, so
 	    // we preserve the anchor and focus values of the DOM selection.
 	    anchorOffset = domSelection.anchorOffset;

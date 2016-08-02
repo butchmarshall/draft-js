@@ -39,6 +39,7 @@ const RESOLVE_DELAY = 20;
  */
 let resolved = false;
 let stillComposing = false;
+let compositionStarted = false;
 let textInputData = '';
 
 var DraftEditorCompositionHandler = {
@@ -52,6 +53,27 @@ var DraftEditorCompositionHandler = {
    */
   onCompositionStart: function(): void {
     stillComposing = true;
+
+    // onCompositionUpdate fires twice on start of composition under Android
+    // This throttles it down
+    setTimeout(() => {
+      if (!resolved) {
+        compositionStarted = true;
+      }
+    }, RESOLVE_DELAY);
+  },
+
+  /**
+   * A `compositionupdate` event has fired while we're still in composition
+   * mode.
+   */
+  onCompositionUpdate: function(e): void {
+    if (!compositionStarted) {
+      return;
+    }
+    compositionStarted = false;
+
+    // TODO - deal with this, trigger onChange, and resolve the DOM properly...
   },
 
   /**

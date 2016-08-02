@@ -9170,7 +9170,7 @@ var Draft =
 	    _this.onDragLeave = _this._onDragLeave.bind(_this);
 
 	    // See `_restoreEditorDOM()`.
-	    _this.state = { containerKey: 0 };
+	    _this.state = { containerKey: 0, contentsKey: 0 };
 	    return _this;
 	  }
 
@@ -9238,8 +9238,8 @@ var Draft =
 	      React.createElement(
 	        'div',
 	        {
-	          className: cx('DraftEditor/editorContainer'),
 	          key: 'editor' + this.state.containerKey,
+	          className: cx('DraftEditor/editorContainer'),
 	          ref: 'editorContainer' },
 	        React.createElement(
 	          'div',
@@ -9281,6 +9281,7 @@ var Draft =
 	            suppressContentEditableWarning: true,
 	            tabIndex: this.props.tabIndex },
 	          React.createElement(DraftEditorContents, {
+	            key: 'editor' + this.state.contentsKey,
 	            blockRenderMap: this.props.blockRenderMap,
 	            blockRendererFn: this.props.blockRendererFn,
 	            blockStyleFn: this.props.blockStyleFn,
@@ -9399,10 +9400,16 @@ var Draft =
 	   */
 
 
-	  DraftEditor.prototype._restoreEditorDOM = function _restoreEditorDOM(scrollPosition) {
+	  DraftEditor.prototype._restoreEditorDOM = function _restoreEditorDOM(scrollPosition, keyToUse) {
 	    var _this3 = this;
 
-	    this.setState({ containerKey: this.state.containerKey + 1 }, function () {
+	    var newState = {};
+	    if (typeof keyToUse === "undefined") {
+	      keyToUse = "containerKey";
+	    }
+	    newState[keyToUse] = this.state[keyToUse] + 1;
+
+	    this.setState(newState, function () {
 	      _this3._focus(scrollPosition);
 	    });
 	  };
@@ -9646,7 +9653,7 @@ var Draft =
 	    var mustReset = !composedChars || isSelectionAtLeafStart(editorState) || currentStyle.size > 0 || entityKey !== null;
 
 	    if (mustReset) {
-	      this.restoreEditorDOM();
+	      this.restoreEditorDOM(undefined, composedChars && composedChars.length > 0 ? "contentsKey" : "containerKey");
 	    }
 
 	    this.exitCurrentMode();
